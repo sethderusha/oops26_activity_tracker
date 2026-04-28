@@ -1,4 +1,6 @@
 package model;
 
-public class Activity {
+import java.io.Serializable;
+
+public class Activity implements Serializable {
 }
