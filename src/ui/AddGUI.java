@@ -5,7 +5,6 @@ import model.Activity;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import javax.swing.SpinnerNumberModel;
 public class AddGUI {
 
     private final ActivityService activityService;
+    private final JFrame owner;
     private final JFrame frame;
     private final JComboBox<String> typeDropdown;
     private final JTextField durationField;
@@ -37,7 +37,12 @@ public class AddGUI {
     private final JButton cancelButton;
 
     public AddGUI(ActivityService activityService) {
+        this(null, activityService);
+    }
+
+    public AddGUI(JFrame owner, ActivityService activityService) {
         this.activityService = activityService;
+        this.owner = owner;
         this.frame = new JFrame("Add Activity");
         this.typeDropdown = new JComboBox<>(new String[] {
             "Work",
@@ -84,7 +89,7 @@ public class AddGUI {
         frame.add(formPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
         frame.pack();
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(owner);
     }
 
     public void saveActivity() {
@@ -136,7 +141,6 @@ public class AddGUI {
 
     public void close() {
         frame.dispose();
-        openMainGUI();
     }
 
     public void show() {
@@ -169,31 +173,4 @@ public class AddGUI {
         serviceMethod.invoke(activityService, activity);
     }
 
-    private void openMainGUI() {
-        try {
-            Class<?> mainGuiClass = Class.forName("ui.MainGUI");
-            Object mainGui = tryCreateMainGui(mainGuiClass);
-            tryCall(mainGui, "initUI");
-            tryCall(mainGui, "show");
-        } catch (Exception ignored) {
-        }
-    }
-
-    private Object tryCreateMainGui(Class<?> mainGuiClass) throws Exception {
-        try {
-            Constructor<?> constructor = mainGuiClass.getConstructor(ActivityService.class);
-            return constructor.newInstance(activityService);
-        } catch (NoSuchMethodException e) {
-            Constructor<?> defaultConstructor = mainGuiClass.getConstructor();
-            return defaultConstructor.newInstance();
-        }
-    }
-
-    private void tryCall(Object target, String methodName) {
-        try {
-            Method method = target.getClass().getMethod(methodName);
-            method.invoke(target);
-        } catch (Exception ignored) {
-        }
-    }
 }

@@ -1,12 +1,7 @@
 package service;
-import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDate;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.Objects;
 import model.Activity;
 import storage.StorageManager;
 
@@ -47,13 +42,13 @@ public class ActivityService {
         }
         return false; // indicate activity not found
     }
-    
+
     // update method
     public void updateActivity(Activity updatedActivity) {
         // first, we need to see if the activity exists
         String _inputID = updatedActivity.getId();
         for (int i = 0; i < activities.size(); i++) {
-            if (activities.get(i).getId().equals(_inputID)) {
+            if (Objects.equals(activities.get(i).getId(), _inputID)) {
                 activities.set(i, updatedActivity); // update the activity in runtime memory
                 storageManager.saveActivity(activities); // save to file after updating
                 return; // exit the method after successful update
@@ -75,6 +70,36 @@ public class ActivityService {
             }
         }
         return results;
+    }
+
+    // Unified search API used by SearchGUI.
+    public ArrayList<Activity> search(String category, String keyword) {
+        ArrayList<Activity> results = new ArrayList<>();
+        if (keyword == null) {
+            return results;
+        }
+        String trimmed = keyword.trim();
+        if (trimmed.isEmpty()) {
+            return results;
+        }
+
+        String cat = (category == null) ? "Keyword" : category.trim();
+        switch (cat) {
+            case "Type":
+                return filterByType(trimmed);
+            case "Date":
+                try {
+                    LocalDate parsed = LocalDate.parse(trimmed);
+                    return filterByDate(parsed);
+                } catch (Exception e) {
+                    return results;
+                }
+            case "Collaborator":
+                return filterByCollaborator(trimmed);
+            case "Keyword":
+            default:
+                return search(trimmed);
+        }
     }
 
     public ArrayList<Activity> filterByType(String type) {

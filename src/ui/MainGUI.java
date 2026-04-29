@@ -99,7 +99,7 @@ public class MainGUI extends JFrame {
 
     private void openAddDialog() {
         AddGUI dialog = new AddGUI(this, service);
-        dialog.setVisible(true);
+        dialog.show();
         refreshDisplay();
     }
 
@@ -113,7 +113,7 @@ public class MainGUI extends JFrame {
         if (selected == null) return;
 
         EditGUI dialog = new EditGUI(this, service, selected);
-        dialog.setVisible(true);
+        dialog.show();
         refreshDisplay();
     }
 
@@ -130,7 +130,7 @@ public class MainGUI extends JFrame {
 
         if (choice != JOptionPane.OK_OPTION) return;
 
-        service.deleteActivity(selected);
+        service.deleteActivity(selected.getId());
         refreshDisplay();
     }
 
@@ -145,7 +145,7 @@ public class MainGUI extends JFrame {
             tableModel.addRow(new Object[]{
                     a.getType(),
                     a.getDate() == null ? "" : a.getDate().format(DATE_FMT),
-                    a.getDurationMinutes(),
+                    a.getDuration(),
                     String.join(", ", a.getCollaborators()),
                     a.getQuality(),
                     a.getNotes() == null ? "" : a.getNotes()

@@ -5,7 +5,6 @@ import service.ActivityService;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +26,7 @@ public class EditGUI {
 
     private final ActivityService activityService;
     private final Activity activity;
+    private final JFrame owner;
     private final JFrame frame;
     private final JComboBox<String> typeDropdown;
     private final JTextField durationField;
@@ -37,8 +37,13 @@ public class EditGUI {
     private final JButton cancelButton;
 
     public EditGUI(ActivityService activityService, Activity activity) {
+        this(null, activityService, activity);
+    }
+
+    public EditGUI(JFrame owner, ActivityService activityService, Activity activity) {
         this.activityService = activityService;
         this.activity = activity;
+        this.owner = owner;
         this.frame = new JFrame("Edit Activity");
         this.typeDropdown = new JComboBox<>(new String[] {
             "Work",
@@ -83,7 +88,7 @@ public class EditGUI {
         frame.add(formPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
         frame.pack();
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(owner);
     }
 
     public void loadActivity() {
@@ -156,7 +161,6 @@ public class EditGUI {
 
     public void close() {
         frame.dispose();
-        openMainGUI();
     }
 
     public void show() {
@@ -208,31 +212,4 @@ public class EditGUI {
         return joiner.toString();
     }
 
-    private void openMainGUI() {
-        try {
-            Class<?> mainGuiClass = Class.forName("ui.MainGUI");
-            Object mainGui = tryCreateMainGui(mainGuiClass);
-            tryCall(mainGui, "initUI");
-            tryCall(mainGui, "show");
-        } catch (Exception ignored) {
-        }
-    }
-
-    private Object tryCreateMainGui(Class<?> mainGuiClass) throws Exception {
-        try {
-            Constructor<?> constructor = mainGuiClass.getConstructor(ActivityService.class);
-            return constructor.newInstance(activityService);
-        } catch (NoSuchMethodException e) {
-            Constructor<?> defaultConstructor = mainGuiClass.getConstructor();
-            return defaultConstructor.newInstance();
-        }
-    }
-
-    private void tryCall(Object target, String methodName) {
-        try {
-            Method method = target.getClass().getMethod(methodName);
-            method.invoke(target);
-        } catch (Exception ignored) {
-        }
-    }
 }
