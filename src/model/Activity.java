@@ -16,6 +16,9 @@ public class Activity implements Serializable {
     private String notes;               // optional
     private LocalDate date;             // when activity happened
 
+    public Activity() {
+    }
+
     public Activity(String id, String type, int duration,
                     List<String> collaborators, int quality,
                     String notes, LocalDate date) {
@@ -29,6 +32,7 @@ public class Activity implements Serializable {
     }
 
     public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
@@ -46,5 +50,6 @@ public class Activity implements Serializable {
     public void setNotes(String notes) { this.notes = notes; }
 
     public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 
 }
