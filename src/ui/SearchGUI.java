@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SearchGUI extends JDialog {
 
-    private static final String[] CATEGORIES = {"Type", "Date", "Collaborator", "Keyword"};
+    private static final String[] CATEGORIES = {"Type", "Date", "Collaborator", "Notes"};
 
     private static final String[] ACTIVITY_TYPES = {
             "Running", "Swimming", "Gym", "Cycling", "Yoga", "Hiking", "Other"
@@ -102,7 +102,7 @@ public class SearchGUI extends JDialog {
             case "Type":          inputLayout.show(inputCard, "Type"); break;
             case "Date":          inputLayout.show(inputCard, "Date"); break;
             case "Collaborator":
-            case "Keyword":
+            case "Notes":
             default:              inputLayout.show(inputCard, "Text"); break;
         }
     }

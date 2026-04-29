@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -45,10 +46,12 @@ public class AddGUI {
         this.owner = owner;
         this.frame = new JFrame("Add Activity");
         this.typeDropdown = new JComboBox<>(new String[] {
-            "Work",
-            "Exercise",
-            "Study",
-            "Social",
+            "Running",
+            "Swimming",
+            "Gym",
+            "Cycling",
+            "Yoga",
+            "Hiking",
             "Other"
         });
         this.durationField = new JTextField();
@@ -118,6 +121,7 @@ public class AddGUI {
 
         try {
             Activity activity = new Activity();
+            callSetter(activity, "setId", String.class, UUID.randomUUID().toString());
             callSetter(activity, "setType", String.class, (String) typeDropdown.getSelectedItem());
             callSetter(activity, "setDuration", int.class, duration);
             callSetter(activity, "setCollaborators", List.class, parseCollaborators(collaboratorsField.getText()));

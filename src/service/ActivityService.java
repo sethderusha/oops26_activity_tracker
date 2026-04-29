@@ -30,7 +30,7 @@ public class ActivityService {
     public boolean deleteActivity(String id) {
         Activity activityToRemove = null;
         for (Activity activity : activities) {
-            if (activity.getId().equals(id)) {
+            if (Objects.equals(activity.getId(), id)) {
                 activityToRemove = activity;
                 break;
             }
@@ -83,7 +83,7 @@ public class ActivityService {
             return results;
         }
 
-        String cat = (category == null) ? "Keyword" : category.trim();
+        String cat = (category == null) ? "Notes" : category.trim();
         switch (cat) {
             case "Type":
                 return filterByType(trimmed);
@@ -96,7 +96,7 @@ public class ActivityService {
                 }
             case "Collaborator":
                 return filterByCollaborator(trimmed);
-            case "Keyword":
+            case "Notes":
             default:
                 return search(trimmed);
         }
