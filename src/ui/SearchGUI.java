@@ -139,7 +139,7 @@ public class SearchGUI extends JDialog {
             resultsModel.addRow(new Object[]{
                     a.getType(),
                     a.getDate() == null ? "" : a.getDate().format(DATE_FMT),
-                    a.getDurationMinutes(),
+                    a.getDuration(),
                     String.join(", ", a.getCollaborators()),
                     a.getQuality(),
                     a.getNotes() == null ? "" : a.getNotes()

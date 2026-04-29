@@ -1,5 +1,4 @@
 package storage;
-import java.util.List;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,7 +11,7 @@ import model.Activity;
 // this only handles the file I/O, the runtime activities are handled by the ActivityService, 
 // which calls this StorageManager to save and load activities from the file.
 public class StorageManager {
-    private static final String DEFAULT_PATH = "./activities.dat";
+    private static final String DEFAULT_PATH = "./data.bin";
     private String FILE_PATH;
 
     public StorageManager() {
@@ -44,6 +43,7 @@ public class StorageManager {
             ObjectInputStream in =
                 new ObjectInputStream(new FileInputStream(FILE_PATH));
 
+            @SuppressWarnings("unchecked")
             ArrayList<Activity> activities = (ArrayList<Activity>) in.readObject();  
             in.close();
 
