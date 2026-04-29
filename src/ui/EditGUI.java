@@ -46,10 +46,12 @@ public class EditGUI {
         this.owner = owner;
         this.frame = new JFrame("Edit Activity");
         this.typeDropdown = new JComboBox<>(new String[] {
-            "Work",
-            "Exercise",
-            "Study",
-            "Social",
+            "Running",
+            "Swimming",
+            "Gym",
+            "Cycling",
+            "Yoga",
+            "Hiking",
             "Other"
         });
         this.durationField = new JTextField();
