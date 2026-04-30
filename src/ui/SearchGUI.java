@@ -1,6 +1,7 @@
 package ui;
 
 import model.Activity;
+import model.Duration;
 import service.ActivityService;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ public class SearchGUI extends JDialog {
     };
 
     private static final String[] RESULT_COLUMNS = {
-            "Type", "Date", "Duration (min)", "Collaborators", "Quality", "Notes"
+            "Type", "Date", "Duration", "Collaborators", "Quality", "Notes"
     };
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -81,6 +82,13 @@ public class SearchGUI extends JDialog {
 
         this.resultsModel = new DefaultTableModel(RESULT_COLUMNS, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override public Class<?> getColumnClass(int col) {
+                switch (col) {
+                    case 2: return Duration.class;
+                    case 4: return Integer.class;
+                    default: return String.class;
+                }
+            }
         };
         JTable resultsTable = new JTable(resultsModel);
         resultsTable.setRowHeight(22);

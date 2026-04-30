@@ -6,7 +6,7 @@ A Java Swing desktop app for logging and managing personal activities (work, exe
 
 - Add activities with:
   - type
-  - duration (minutes)
+  - duration (hours + minutes)
   - collaborators (comma-separated)
   - quality rating (1-5)
   - notes
@@ -35,7 +35,7 @@ A Java Swing desktop app for logging and managing personal activities (work, exe
 - `src/storage/`
   - File I/O layer (`StorageManager`) that loads/saves `data.bin`.
 - `src/model/`
-  - Data model (`Activity`).
+  - Data models (`Activity`, `Duration`).
 - `docs/`
   - Project diagrams and design docs (`Use Case`, `Sequence`, `Class Diagram`).
 

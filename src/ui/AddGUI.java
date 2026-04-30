@@ -2,6 +2,7 @@ package ui;
 
 import service.ActivityService;
 import model.Activity;
+import model.Duration;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -29,7 +30,8 @@ public class AddGUI {
     private final JFrame owner;
     private final JFrame frame;
     private final JComboBox<String> typeDropdown;
-    private final JTextField durationField;
+    private final JTextField hoursField;
+    private final JTextField minutesField;
     private final JTextField collaboratorsField;
     private final JSpinner qualitySpinner;
     private final JTextArea notesArea;
@@ -54,7 +56,8 @@ public class AddGUI {
             "Hiking",
             "Other"
         });
-        this.durationField = new JTextField();
+        this.hoursField = new JTextField();
+        this.minutesField = new JTextField();
         this.collaboratorsField = new JTextField();
         this.qualitySpinner = new JSpinner(new SpinnerNumberModel(3, 1, 5, 1));
         this.notesArea = new JTextArea(4, 20);
@@ -68,11 +71,13 @@ public class AddGUI {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout(8, 8));
 
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 8, 8));
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 8, 8));
         formPanel.add(new JLabel("Type"));
         formPanel.add(typeDropdown);
-        formPanel.add(new JLabel("Duration (minutes)"));
-        formPanel.add(durationField);
+        formPanel.add(new JLabel("Duration Hours"));
+        formPanel.add(hoursField);
+        formPanel.add(new JLabel("Duration Minutes"));
+        formPanel.add(minutesField);
         formPanel.add(new JLabel("Collaborators"));
         formPanel.add(collaboratorsField);
         formPanel.add(new JLabel("Quality (1-5)"));
@@ -101,21 +106,28 @@ public class AddGUI {
             return;
         }
 
-        String durationText = durationField.getText().trim();
-        if (durationText.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Duration is required.");
+        String hoursText = hoursField.getText().trim();
+        String minutesText = minutesField.getText().trim();
+        if (hoursText.isEmpty() || minutesText.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Both hours and minutes are required.");
             return;
         }
 
-        int duration;
+        int hours;
+        int minutes;
         try {
-            duration = Integer.parseInt(durationText);
-            if (duration <= 0) {
-                JOptionPane.showMessageDialog(frame, "Duration must be greater than 0.");
+            hours = Integer.parseInt(hoursText);
+            minutes = Integer.parseInt(minutesText);
+            if (hours < 0 || minutes < 0) {
+                JOptionPane.showMessageDialog(frame, "Hours and minutes must be non-negative.");
+                return;
+            }
+            if (hours == 0 && minutes == 0) {
+                JOptionPane.showMessageDialog(frame, "Duration must be greater than 0 minutes.");
                 return;
             }
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(frame, "Duration must be a number.");
+            JOptionPane.showMessageDialog(frame, "Hours and minutes must be numbers.");
             return;
         }
 
@@ -123,7 +135,7 @@ public class AddGUI {
             Activity activity = new Activity();
             callSetter(activity, "setId", String.class, UUID.randomUUID().toString());
             callSetter(activity, "setType", String.class, (String) typeDropdown.getSelectedItem());
-            callSetter(activity, "setDuration", int.class, duration);
+            callSetter(activity, "setDuration", Duration.class, new Duration(hours, minutes));
             callSetter(activity, "setCollaborators", List.class, parseCollaborators(collaboratorsField.getText()));
             callSetter(activity, "setQuality", int.class, (Integer) qualitySpinner.getValue());
             callSetter(activity, "setNotes", String.class, notesArea.getText().trim());
@@ -137,7 +149,8 @@ public class AddGUI {
 
     public void resetForm() {
         typeDropdown.setSelectedIndex(0);
-        durationField.setText("");
+        hoursField.setText("");
+        minutesField.setText("");
         collaboratorsField.setText("");
         qualitySpinner.setValue(3);
         notesArea.setText("");
