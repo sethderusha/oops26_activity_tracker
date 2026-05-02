@@ -71,5 +71,6 @@ java -cp out main.MainGUI
 2. Use **Add** to create a new activity.
 3. Right-click a row in the table to **Edit** or **Delete**.
 4. Use **Search** to filter by category and query.
-5. Use **Refresh** to reload the full list from in-memory state.
+
+The main table updates automatically after you add or edit an activity.
 
