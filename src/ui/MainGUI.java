@@ -5,13 +5,17 @@ import model.Duration;
 import service.ActivityService;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class MainGUI extends JFrame {
 
@@ -24,11 +28,14 @@ public class MainGUI extends JFrame {
     private final ActivityService service;
     private final DefaultTableModel tableModel;
     private final JTable activityTable;
+    private final TableRowSorter<DefaultTableModel> sorter;
+    private final JTextField filterField;
     private final JPopupMenu rowPopupMenu;
 
     public MainGUI(ActivityService service) {
         super("Fitness Tracker");
         this.service = service;
+        this.filterField = new JTextField(20);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 560);
@@ -49,7 +56,10 @@ public class MainGUI extends JFrame {
         };
         this.activityTable = new JTable(tableModel);
         activityTable.setRowHeight(24);
-        activityTable.setAutoCreateRowSorter(true);
+
+        this.sorter = new TableRowSorter<>(tableModel);
+        activityTable.setRowSorter(sorter);
+
         activityTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JTableHeader header = activityTable.getTableHeader();
         header.setFont(header.getFont().deriveFont(Font.BOLD));
@@ -70,6 +80,12 @@ public class MainGUI extends JFrame {
             }
         });
 
+        filterField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e)  { applyFilter(); }
+            @Override public void removeUpdate(DocumentEvent e)  { applyFilter(); }
+            @Override public void changedUpdate(DocumentEvent e) { applyFilter(); }
+        });
+
         refreshDisplay();
     }
 
@@ -88,6 +104,10 @@ public class MainGUI extends JFrame {
         bar.add(addBtn);
         bar.add(searchBtn);
         bar.add(refreshBtn);
+        bar.add(Box.createHorizontalGlue());
+        bar.add(new JLabel("Filter: "));
+        bar.add(filterField);
+        bar.add(Box.createHorizontalStrut(8));
         return bar;
     }
 
@@ -103,6 +123,15 @@ public class MainGUI extends JFrame {
         menu.add(editItem);
         menu.add(deleteItem);
         return menu;
+    }
+
+    private void applyFilter() {
+        String text = filterField.getText().trim();
+        if (text.isEmpty()) {
+            sorter.setRowFilter(null);
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text)));
+        }
     }
 
     private void openAddDialog() {
@@ -154,7 +183,7 @@ public class MainGUI extends JFrame {
                     a.getType(),
                     a.getDate() == null ? "" : a.getDate().format(DATE_FMT),
                     a.getDuration(),
-                    String.join(", ", a.getCollaborators()),
+                    a.getCollaborators() == null ? "" : String.join(", ", a.getCollaborators()),
                     a.getQuality(),
                     a.getNotes() == null ? "" : a.getNotes()
             });
