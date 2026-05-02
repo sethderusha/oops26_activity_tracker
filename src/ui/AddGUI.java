@@ -38,13 +38,19 @@ public class AddGUI {
     private final JButton saveButton;
     private final JButton resetButton;
     private final JButton cancelButton;
+    private final Runnable onSaved;
 
     public AddGUI(ActivityService activityService) {
-        this(null, activityService);
+        this(null, activityService, null);
     }
 
     public AddGUI(JFrame owner, ActivityService activityService) {
+        this(owner, activityService, null);
+    }
+
+    public AddGUI(JFrame owner, ActivityService activityService, Runnable onSaved) {
         this.activityService = activityService;
+        this.onSaved = onSaved;
         this.owner = owner;
         this.frame = new JFrame("Add Activity");
         this.typeDropdown = new JComboBox<>(new String[] {
@@ -141,6 +147,9 @@ public class AddGUI {
             callSetter(activity, "setNotes", String.class, notesArea.getText().trim());
             callSetter(activity, "setDate", LocalDate.class, LocalDate.now());
             callService("addActivity", Activity.class, activity);
+            if (onSaved != null) {
+                onSaved.run();
+            }
             close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame, "Could not save activity: " + e.getMessage());

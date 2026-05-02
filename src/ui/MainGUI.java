@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,8 @@ public class MainGUI extends JFrame {
     private final TableRowSorter<DefaultTableModel> sorter;
     private final JTextField filterField;
     private final JPopupMenu rowPopupMenu;
+    /** Rows currently shown in the table (same order as model); used for edit/delete when filter is active. */
+    private List<Activity> displayedActivities = new ArrayList<>();
 
     public MainGUI(ActivityService service) {
         super("Fitness Tracker");
@@ -95,14 +98,16 @@ public class MainGUI extends JFrame {
 
         JButton functionsBtn = new JButton("Functions");
         JPopupMenu functionsMenu = new JPopupMenu();
-
         JMenuItem addItem = new JMenuItem("Add");
         JMenuItem searchItem = new JMenuItem("Search");
-        JMenuItem refreshItem = new JMenuItem("Refresh");
+        addItem.addActionListener(e -> openAddDialog());
+        searchItem.addActionListener(e -> openSearchDialog());
+        functionsMenu.add(addItem);
+        functionsMenu.add(searchItem);
+        functionsBtn.addActionListener(e ->
+                functionsMenu.show(functionsBtn, 0, functionsBtn.getHeight()));
 
-        bar.add(addBtn);
-        bar.add(searchBtn);
-        bar.add(refreshBtn);
+        bar.add(functionsBtn);
         bar.add(Box.createHorizontalGlue());
         bar.add(new JLabel("Filter: "));
         bar.add(filterField);
@@ -125,18 +130,50 @@ public class MainGUI extends JFrame {
     }
 
     private void applyFilter() {
+        repopulateFromService();
+    }
+
+    private void repopulateFromService() {
+        List<Activity> all = service.getAllActivities();
         String text = filterField.getText().trim();
+        List<Activity> toShow;
         if (text.isEmpty()) {
-            sorter.setRowFilter(null);
+            toShow = all;
         } else {
-            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text)));
+            Pattern p = Pattern.compile(Pattern.quote(text), Pattern.CASE_INSENSITIVE);
+            toShow = new ArrayList<>();
+            for (Activity a : all) {
+                if (matchesFilter(a, p)) {
+                    toShow.add(a);
+                }
+            }
         }
+        populateTable(toShow);
+    }
+
+    private boolean matchesFilter(Activity a, Pattern p) {
+        if (p.matcher(a.getType() == null ? "" : a.getType()).find()) {
+            return true;
+        }
+        if (a.getDate() != null && p.matcher(a.getDate().format(DATE_FMT)).find()) {
+            return true;
+        }
+        if (p.matcher(String.valueOf(a.getDuration())).find()) {
+            return true;
+        }
+        String collab = a.getCollaborators() == null ? "" : String.join(", ", a.getCollaborators());
+        if (p.matcher(collab).find()) {
+            return true;
+        }
+        if (p.matcher(String.valueOf(a.getQuality())).find()) {
+            return true;
+        }
+        return p.matcher(a.getNotes() == null ? "" : a.getNotes()).find();
     }
 
     private void openAddDialog() {
-        AddGUI dialog = new AddGUI(this, service);
+        AddGUI dialog = new AddGUI(this, service, this::refreshDisplay);
         dialog.show();
-        refreshDisplay();
     }
 
     private void openSearchDialog() {
@@ -148,9 +185,8 @@ public class MainGUI extends JFrame {
         Activity selected = getSelectedActivity();
         if (selected == null) return;
 
-        EditGUI dialog = new EditGUI(this, service, selected);
+        EditGUI dialog = new EditGUI(this, service, selected, this::refreshDisplay);
         dialog.show();
-        refreshDisplay();
     }
 
     private void deleteSelected() {
@@ -171,11 +207,11 @@ public class MainGUI extends JFrame {
     }
 
     public void refreshDisplay() {
-        List<Activity> all = service.getAllActivities();
-        populateTable(all);
+        repopulateFromService();
     }
 
     private void populateTable(List<Activity> activities) {
+        displayedActivities = new ArrayList<>(activities);
         tableModel.setRowCount(0);
         for (Activity a : activities) {
             tableModel.addRow(new Object[]{
@@ -193,9 +229,7 @@ public class MainGUI extends JFrame {
         int viewRow = activityTable.getSelectedRow();
         if (viewRow < 0) return null;
         int modelRow = activityTable.convertRowIndexToModel(viewRow);
-
-        List<Activity> all = service.getAllActivities();
-        if (modelRow >= all.size()) return null;
-        return all.get(modelRow);
+        if (modelRow < 0 || modelRow >= displayedActivities.size()) return null;
+        return displayedActivities.get(modelRow);
     }
 }
