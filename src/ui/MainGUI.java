@@ -77,17 +77,27 @@ public class MainGUI extends JFrame {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
 
-        JButton addBtn     = new JButton("Add");
-        JButton searchBtn  = new JButton("Search");
-        JButton refreshBtn = new JButton("Refresh");
+        JButton functionsBtn = new JButton("Functions");
+        JPopupMenu functionsMenu = new JPopupMenu();
 
-        addBtn.addActionListener(e -> openAddDialog());
-        searchBtn.addActionListener(e -> openSearchDialog());
-        refreshBtn.addActionListener(e -> refreshDisplay());
+        JMenuItem addItem = new JMenuItem("Add");
+        JMenuItem searchItem = new JMenuItem("Search");
+        JMenuItem refreshItem = new JMenuItem("Refresh");
 
-        bar.add(addBtn);
-        bar.add(searchBtn);
-        bar.add(refreshBtn);
+        addItem.addActionListener(e -> openAddDialog());
+        searchItem.addActionListener(e -> openSearchDialog());
+        refreshItem.addActionListener(e -> refreshDisplay());
+
+        functionsMenu.add(addItem);
+        functionsMenu.add(searchItem);
+        functionsMenu.add(refreshItem);
+
+        functionsBtn.addActionListener(e -> {
+            Component c = (Component) e.getSource();
+            functionsMenu.show(c, 0, c.getHeight());
+        });
+
+        bar.add(functionsBtn);
         return bar;
     }
 
