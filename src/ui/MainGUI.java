@@ -95,14 +95,16 @@ public class MainGUI extends JFrame {
 
         JButton functionsBtn = new JButton("Functions");
         JPopupMenu functionsMenu = new JPopupMenu();
-
         JMenuItem addItem = new JMenuItem("Add");
         JMenuItem searchItem = new JMenuItem("Search");
-        JMenuItem refreshItem = new JMenuItem("Refresh");
+        addItem.addActionListener(e -> openAddDialog());
+        searchItem.addActionListener(e -> openSearchDialog());
+        functionsMenu.add(addItem);
+        functionsMenu.add(searchItem);
+        functionsBtn.addActionListener(e ->
+                functionsMenu.show(functionsBtn, 0, functionsBtn.getHeight()));
 
-        bar.add(addBtn);
-        bar.add(searchBtn);
-        bar.add(refreshBtn);
+        bar.add(functionsBtn);
         bar.add(Box.createHorizontalGlue());
         bar.add(new JLabel("Filter: "));
         bar.add(filterField);
@@ -134,9 +136,8 @@ public class MainGUI extends JFrame {
     }
 
     private void openAddDialog() {
-        AddGUI dialog = new AddGUI(this, service);
+        AddGUI dialog = new AddGUI(this, service, this::refreshDisplay);
         dialog.show();
-        refreshDisplay();
     }
 
     private void openSearchDialog() {
@@ -148,9 +149,8 @@ public class MainGUI extends JFrame {
         Activity selected = getSelectedActivity();
         if (selected == null) return;
 
-        EditGUI dialog = new EditGUI(this, service, selected);
+        EditGUI dialog = new EditGUI(this, service, selected, this::refreshDisplay);
         dialog.show();
-        refreshDisplay();
     }
 
     private void deleteSelected() {

@@ -37,14 +37,20 @@ public class EditGUI {
     private final JTextArea notesArea;
     private final JButton saveButton;
     private final JButton cancelButton;
+    private final Runnable onSaved;
 
     public EditGUI(ActivityService activityService, Activity activity) {
-        this(null, activityService, activity);
+        this(null, activityService, activity, null);
     }
 
     public EditGUI(JFrame owner, ActivityService activityService, Activity activity) {
+        this(owner, activityService, activity, null);
+    }
+
+    public EditGUI(JFrame owner, ActivityService activityService, Activity activity, Runnable onSaved) {
         this.activityService = activityService;
         this.activity = activity;
+        this.onSaved = onSaved;
         this.owner = owner;
         this.frame = new JFrame("Edit Activity");
         this.typeDropdown = new JComboBox<>(new String[] {
@@ -168,6 +174,9 @@ public class EditGUI {
             callSetter(activity, "setQuality", int.class, (Integer) qualitySpinner.getValue());
             callSetter(activity, "setNotes", String.class, notesArea.getText().trim());
             callService("updateActivity", Activity.class, activity);
+            if (onSaved != null) {
+                onSaved.run();
+            }
             close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame, "Could not update activity: " + e.getMessage());
